@@ -1,4 +1,4 @@
-// backend/sites/coindesk.js
+// server/sites/coindesk.js
 const axios = require('axios');
 const cheerio = require('cheerio');
 const puppeteer = require('puppeteer');
@@ -6,7 +6,7 @@ const puppeteer = require('puppeteer');
 module.exports = {
   name: 'CoinDesk',
   url: 'https://www.coindesk.com/latest-crypto-news',
-  async scrape() {
+  async scrape(count = 10) {
     let browser;
     try {
       console.log(`[CoinDesk] Starting scrape for ${this.url}`);
@@ -23,7 +23,7 @@ module.exports = {
       // Ждем, пока карточки новостей загрузятся
       await page.waitForSelector('div.bg-white.flex.gap-6.w-full.shrink.justify-between', { timeout: 15000 });
 
-      const articles = await page.evaluate(() => {
+      const articles = await page.evaluate((count) => {
         const items = document.querySelectorAll('div.bg-white.flex.gap-6.w-full.shrink.justify-between');
         const results = [];
         items.forEach((item) => {
@@ -44,8 +44,8 @@ module.exports = {
             });
           }
         });
-        return results.slice(0, 10); // Ограничиваем 10 статьями
-      });
+        return results.slice(0, count);
+      }, count);
       return articles;
     } catch (error) {
       console.error(`Error scraping ${this.name}:`, error.message);

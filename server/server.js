@@ -1,4 +1,4 @@
-// backend/server.js
+// server/server.js
 const express = require('express');
 const cors = require('cors');
 
@@ -20,9 +20,12 @@ const sites = [beincrypto, cryptoslate, cointelegraph, coindesk];
 // Эндпоинт для парсинга заголовков новостей
 app.get('/scrape', async (req, res) => {
   try {
+    const count = parseInt(req.query.count) || 10; // Получаем count из query-параметра
+    console.log(`Fetching ${count} titles per site`);
+
     const allArticles = [];
     for (const site of sites) {
-      const articles = await site.scrape();
+      const articles = await site.scrape(count); // Передаем count в метод scrape
       allArticles.push(...articles);
     }
 

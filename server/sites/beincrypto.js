@@ -1,11 +1,11 @@
-// backend/sites/beincrypto.js
+// server/sites/beincrypto.js
 const axios = require('axios');
 const cheerio = require('cheerio');
 
 module.exports = {
   name: 'BeInCrypto',
   url: 'https://beincrypto.com/news/',
-  async scrape() {
+  async scrape(count = 10) {
     try {
       const response = await axios.get(this.url, {
         headers: {
@@ -32,7 +32,7 @@ module.exports = {
       });
 
       // Возвращаем только первые 10 заголовков
-      return articles.slice(0, 10);
+      return articles.slice(0, count);
     } catch (error) {
       console.error(`Error scraping ${this.name}:`, error.message);
       return [];

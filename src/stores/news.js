@@ -8,6 +8,7 @@ export const useNewsStore = defineStore('news', {
     modifiedArticle: null,
     ssmlArticle: null,
     isLoading: false,
+    articleCount: 1,
   }),
   actions: {
     selectNews(news) {
@@ -32,6 +33,9 @@ export const useNewsStore = defineStore('news', {
     },
     setLoading(loading) {
       this.isLoading = loading;
+    },
+    setArticleCount(count) {
+      this.articleCount = count;
     },
   },
 });

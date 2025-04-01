@@ -1,34 +1,43 @@
 <!-- src/components/Header.vue -->
 <template>
   <header>
-    <button @click="getTitles">TITLES</button>
-    <button
-      @click="modify"
-      :disabled="!newsStore.selectedNews"
-    >
-      MODIFY
-    </button>
-    <button
-      @click="ssml"
-      :disabled="!newsStore.modifiedArticle"
-    >
-      SSML
-    </button>
-    <button
-      @click="save"
-      :disabled="!newsStore.selectedNews"
-    >
-      SAVE
-    </button>
+    <div class="header-left">
+      <Range />
+    </div>
+    <div class="header-right">
+      <button @click="getTitles">TITLES</button>
+      <button
+        @click="modify"
+        :disabled="!newsStore.selectedNews"
+      >
+        MODIFY
+      </button>
+      <button
+        @click="ssml"
+        :disabled="!newsStore.modifiedArticle"
+      >
+        SSML
+      </button>
+      <button
+        @click="save"
+        :disabled="!newsStore.selectedNews"
+      >
+        SAVE
+      </button>
+    </div>
   </header>
 </template>
 
 <script>
 import { useNewsStore } from '../stores/news';
 import axios from 'axios';
+import Range from './Range.vue';
 
 export default {
   name: 'Header',
+  components: {
+    Range,
+  },
   setup() {
     const newsStore = useNewsStore();
     return { newsStore };
@@ -38,7 +47,9 @@ export default {
       this.newsStore.setLoading(true);
       try {
         // Запрос к бэкенду
-        const response = await axios.get('http://localhost:3000/scrape');
+        const response = await axios.get('http://localhost:3000/scrape', {
+          params: { count: this.newsStore.articleCount },
+        });
         const articles = response.data.map((article, index) => ({
           id: index + 1, // Генерируем ID
           siteName: article.siteName,
@@ -171,8 +182,18 @@ header {
   padding: 10px;
   height: 80px;
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-around;
   align-items: center;
+  gap: 10px;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+}
+
+.header-right {
+  display: flex;
   gap: 10px;
 }
 

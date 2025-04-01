@@ -1,11 +1,11 @@
-// backend/sites/cryptoslate.js
+// server/sites/cryptoslate.js
 const axios = require('axios');
 const cheerio = require('cheerio');
 
 module.exports = {
   name: 'CryptoSlate',
   url: 'https://cryptoslate.com/news/',
-  async scrape() {
+  async scrape(count = 10) {
     try {
       const response = await axios.get(this.url, {
         headers: {
@@ -31,7 +31,7 @@ module.exports = {
         }
       });
 
-      return articles.slice(0, 10);
+      return articles.slice(0, count);
     } catch (error) {
       console.error(`Error scraping ${this.name}:`, error.message);
       return [];

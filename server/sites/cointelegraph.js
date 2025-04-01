@@ -1,4 +1,4 @@
-// backend/sites/cointelegraph.js
+// server/sites/cointelegraph.js
 const axios = require('axios');
 const cheerio = require('cheerio');
 const puppeteer = require('puppeteer');
@@ -6,7 +6,7 @@ const puppeteer = require('puppeteer');
 module.exports = {
   name: 'Cointelegraph',
   url: 'https://cointelegraph.com/category/latest-news',
-  async scrape() {
+  async scrape(count = 10) {
     let browser;
     try {
       // Запускаем Puppeteer
@@ -28,7 +28,7 @@ module.exports = {
       await page.waitForSelector('li[data-testid="posts-listing__item"]', { timeout: 10000 });
 
       // Извлекаем данные
-      const articles = await page.evaluate(() => {
+      const articles = await page.evaluate((count) => {
         const items = document.querySelectorAll('li[data-testid="posts-listing__item"]');
         const results = [];
 
@@ -51,8 +51,8 @@ module.exports = {
           }
         });
 
-        return results.slice(0, 10);
-      });
+        return results.slice(0, count);
+      }, count);
 
       return articles;
     } catch (error) {
