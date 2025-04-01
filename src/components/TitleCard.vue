@@ -25,12 +25,18 @@ export default {
     siteName: String,
     time: String,
     title: String,
-    translation: String,
+    translation: {
+      type: String,
+      default: 'Перевод недоступен',
+    },
     isSaved: Boolean,
   },
   setup() {
     const newsStore = useNewsStore();
     return { newsStore };
+  },
+  mounted() {
+    console.log(`TitleCard translation for ${this.title}: ${this.translation}`);
   },
   methods: {
     async selectCard() {

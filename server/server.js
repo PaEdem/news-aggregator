@@ -1,6 +1,7 @@
 // server/server.js
 const express = require('express');
 const cors = require('cors');
+const { translateText } = require('./utils/translate');
 
 // Импортируем конфигурации сайтов
 const beincrypto = require('./sites/beincrypto');
@@ -20,12 +21,16 @@ const sites = [beincrypto, cryptoslate, cointelegraph, coindesk];
 // Эндпоинт для парсинга заголовков новостей
 app.get('/scrape', async (req, res) => {
   try {
-    const count = parseInt(req.query.count) || 10; // Получаем count из query-параметра
-    console.log(`Fetching ${count} titles per site`);
+    const count = parseInt(req.query.count) || 10;
 
     const allArticles = [];
     for (const site of sites) {
-      const articles = await site.scrape(count); // Передаем count в метод scrape
+      const articles = await site.scrape(count);
+      // Переводим заголовки
+      for (const article of articles) {
+        article.translatedTitle = await translateText(article.title, 'en', 'ru');
+        console.log(`Translated "${article.title}" to "${article.translatedTitle}"`);
+      }
       allArticles.push(...articles);
     }
 

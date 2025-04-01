@@ -56,10 +56,11 @@ export default {
           title: article.title,
           link: article.link,
           time: article.time,
-          translation: 'Перевод пока не реализован', // Заглушка для перевода
-          article: 'Текст статьи пока не загружается', // Заглушка для текста статьи
+          translation: article.translatedTitle || 'Перевод недоступен',
+          article: 'Текст статьи пока не загружается', // Заглушка
           isSaved: false,
         }));
+        console.log('Fetched articles:', articles); // Логирование для отладки
         this.newsStore.setNewsList(articles);
         this.newsStore.setViewArticle(true);
 
