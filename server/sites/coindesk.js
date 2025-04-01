@@ -9,7 +9,6 @@ module.exports = {
   async scrape(count = 10) {
     let browser;
     try {
-      console.log(`[CoinDesk] Starting scrape for ${this.url}`);
       browser = await puppeteer.launch({
         headless: true,
         args: ['--no-sandbox', '--disable-setuid-sandbox'],

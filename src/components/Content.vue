@@ -1,7 +1,7 @@
 <!-- src/components/Content.vue -->
 <template>
   <div class="content">
-    <Article v-if="!newsStore.modifiedArticle" />
+    <Article v-if="!newsStore.modifiedArticle && newsStore.isViewArticle" />
     <ModifyArticle v-if="newsStore.modifiedArticle" />
     <ArticleSSML v-if="newsStore.ssmlArticle" />
   </div>

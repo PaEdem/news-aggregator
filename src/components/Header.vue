@@ -61,6 +61,7 @@ export default {
           isSaved: false,
         }));
         this.newsStore.setNewsList(articles);
+        this.newsStore.setViewArticle(true);
 
         // Сохранение в LocalStorage после GET TITLES
         const titlesToSave = articles.map((article) => ({

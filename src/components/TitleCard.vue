@@ -98,7 +98,8 @@ export default {
 
 .title {
   margin: 4px 0;
-  font-size: 14px;
+  font-size: 12px;
+  font-weight: 600;
   color: var(--blue);
 }
 
