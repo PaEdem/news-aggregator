@@ -13,7 +13,10 @@ export const useNewsStore = defineStore('news', {
   }),
   actions: {
     selectNews(news) {
-      this.selectedNews = news;
+      this.selectedNews = {
+        ...news,
+        translatedArticle: news.translatedArticle || 'Перевод недоступен',
+      };
       this.modifiedArticle = null;
       this.ssmlArticle = null;
     },

@@ -4,6 +4,7 @@
     <div v-if="selectedNews">
       <p class="article-title">{{ selectedNews.title }}</p>
       <p class="article-text">{{ selectedNews.article }}</p>
+      <p class="article-translation">{{ selectedNews.translatedArticle }}</p>
     </div>
     <div v-else>
       <p class="alt-text">Select a news card to view the article.</p>
@@ -38,13 +39,22 @@ export default {
 }
 .article-title {
   color: var(--blue);
-  font-size: 14px;
+  font-size: 12px;
   font-weight: bold;
   margin-bottom: 10px;
 }
 .article-text {
+  color: var(--blue);
+  font-size: 12px;
+  white-space: pre-wrap;
+}
+.article-translation {
   color: var(--black);
-  font-size: 14px;
+  font-style: italic;
+  font-size: 12px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--green);
   white-space: pre-wrap;
 }
 .alt-text {

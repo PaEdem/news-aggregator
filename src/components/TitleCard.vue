@@ -48,6 +48,7 @@ export default {
         translation: this.translation,
         link: this.newsStore.newsList.find((item) => item.id === this.id).link,
         article: 'Loading article...',
+        translatedArticle: 'Загрузка перевода...', // Заглушка для перевода
         isSaved: this.isSaved,
       };
       this.newsStore.selectNews(news);
@@ -62,9 +63,11 @@ export default {
           },
         });
         this.newsStore.selectedNews.article = response.data.article;
+        this.newsStore.selectedNews.translatedArticle = response.data.translatedArticle; // Сохраняем перевод
       } catch (error) {
         console.error('Error fetching article:', error.message);
-        this.newsStore.selectedNews.article = 'Failed to load article content.';
+        this.newsStore.selectedNews.article = 'Failed to load article content';
+        this.newsStore.selectedNews.translatedArticle = 'Не удалось загрузить перевод';
       } finally {
         this.newsStore.setLoading(false);
       }

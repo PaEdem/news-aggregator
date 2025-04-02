@@ -1,20 +1,23 @@
 // server/sites/cryptoslate.js
-const axios = require('axios');
 const cheerio = require('cheerio');
 
 module.exports = {
   name: 'CryptoSlate',
   url: 'https://cryptoslate.com/news/',
-  async scrape(count = 10) {
+  async scrape(count = 10, browser) {
+    let page;
     try {
-      const response = await axios.get(this.url, {
-        headers: {
-          'User-Agent':
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-        },
-      });
-      const $ = cheerio.load(response.data);
+      page = await browser.newPage();
+      await page.setUserAgent(
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+      );
+      await page.goto(this.url, { waitUntil: 'domcontentloaded', timeout: 30000 });
+      await page.waitForSelector('div.list-post', { timeout: 10000 });
 
+      const html = await page.content();
+      console.log(`CryptoSlate HTML length: ${html.length}`);
+
+      const $ = cheerio.load(html);
       const articles = [];
       $('div.list-post').each((i, element) => {
         const title = $(element).find('div.title h2').text().trim();
@@ -31,24 +34,28 @@ module.exports = {
         }
       });
 
+      console.log(`CryptoSlate articles scraped: ${articles.length}`);
       return articles.slice(0, count);
     } catch (error) {
       console.error(`Error scraping ${this.name}:`, error.message);
       return [];
+    } finally {
+      if (page) await page.close();
     }
   },
-  async scrapeArticle(link) {
+  async scrapeArticle(link, browser) {
+    let page;
     try {
-      const response = await axios.get(link, {
-        headers: {
-          'User-Agent':
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-        },
-      });
-      const $ = cheerio.load(response.data);
+      page = await browser.newPage();
+      await page.setUserAgent(
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+      );
+      await page.goto(link, { waitUntil: 'domcontentloaded', timeout: 30000 });
+
+      const html = await page.content();
+      const $ = cheerio.load(html);
 
       const paragraphs = [];
-      // Первый вариант структуры: текст внутри div.post-box
       const postBox = $('div.post-box');
       if (postBox.length > 0) {
         postBox.find('p:not(.disclaimer p):not(.footer-disclaimer p):not(.related-articles p)').each((i, el) => {
@@ -58,9 +65,7 @@ module.exports = {
             paragraphs.push(isQuote ? `[Quote] ${text}` : text);
           }
         });
-      }
-      // Второй вариант структуры: текст внутри article.full-article
-      else if ($('article.full-article').length > 0) {
+      } else if ($('article.full-article').length > 0) {
         $(
           'article.full-article p:not(.footer-disclaimer p):not(.hypelab-container p):not(.code-block p):not(.unit-widgets p):not(.podcast-box p):not(.post-meta-flex p):not(.related-articles p)'
         ).each((i, el) => {
@@ -78,6 +83,8 @@ module.exports = {
     } catch (error) {
       console.error(`Error scraping article from ${link}:`, error.message);
       return 'Failed to load article content.';
+    } finally {
+      if (page) await page.close();
     }
   },
 };
