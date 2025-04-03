@@ -15,8 +15,6 @@ module.exports = {
       await page.waitForSelector('div.post-loop', { timeout: 5000 });
 
       const html = await page.content();
-      console.log(`CryptoNews HTML length: ${html.length}`);
-
       const $ = cheerio.load(html);
       const articles = [];
       $('div.post-loop').each((i, element) => {
@@ -27,8 +25,6 @@ module.exports = {
           articles.push({ siteName: this.name, title, link, time });
         }
       });
-
-      console.log(`CryptoNews articles scraped: ${articles.length}`);
       return articles.slice(0, count);
     } catch (error) {
       console.error(`Error scraping ${this.name}:`, error.message);

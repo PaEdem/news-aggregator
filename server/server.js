@@ -34,7 +34,6 @@ app.get('/scrape', async (req, res) => {
       const articles = await site.scrape(count, browser);
       for (const article of articles) {
         article.translatedTitle = await translateText(article.title, 'en', 'ru');
-        console.log(`Translated "${article.title}" to "${article.translatedTitle}"`);
       }
       return articles;
     });

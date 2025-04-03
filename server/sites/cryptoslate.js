@@ -12,17 +12,15 @@ module.exports = {
         'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
       );
       await page.goto(this.url, { waitUntil: 'domcontentloaded', timeout: 30000 });
-      await page.waitForSelector('div.list-post', { timeout: 10000 });
+      await page.waitForSelector('section.list-feed .list-card', { timeout: 5000 });
 
       const html = await page.content();
-      console.log(`CryptoSlate HTML length: ${html.length}`);
-
       const $ = cheerio.load(html);
       const articles = [];
-      $('div.list-post').each((i, element) => {
+      $('section.list-feed .list-card').each((i, element) => {
         const title = $(element).find('div.title h2').text().trim();
         const link = $(element).find('a').attr('href');
-        const time = $(element).find('div.post-meta span:nth-child(2)').text().trim();
+        const time = $(element).find('span.post-meta span.read').text().trim();
 
         if (title && link && time) {
           articles.push({
@@ -33,8 +31,6 @@ module.exports = {
           });
         }
       });
-
-      console.log(`CryptoSlate articles scraped: ${articles.length}`);
       return articles.slice(0, count);
     } catch (error) {
       console.error(`Error scraping ${this.name}:`, error.message);
@@ -43,6 +39,7 @@ module.exports = {
       if (page) await page.close();
     }
   },
+
   async scrapeArticle(link, browser) {
     let page;
     try {

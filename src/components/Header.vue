@@ -60,7 +60,6 @@ export default {
           article: 'Текст статьи пока не загружается', // Заглушка
           isSaved: false,
         }));
-        console.log('Fetched articles:', articles); // Логирование для отладки
         this.newsStore.setNewsList(articles);
         this.newsStore.setViewArticle(true);
 

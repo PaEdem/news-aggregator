@@ -35,9 +35,6 @@ export default {
     const newsStore = useNewsStore();
     return { newsStore };
   },
-  mounted() {
-    console.log(`TitleCard translation for ${this.title}: ${this.translation}`);
-  },
   methods: {
     async selectCard() {
       const news = {
