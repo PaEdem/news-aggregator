@@ -2,7 +2,7 @@
 <template>
   <div class="title-card-list">
     <div v-if="sortedNewsList.length === 0">
-      <p>No news available. Click "TITLES" to fetch news.</p>
+      <p>Select the amount of news. Click "TITLES" to fetch news.</p>
     </div>
     <TitleCard
       v-else
@@ -52,6 +52,9 @@ export default {
 
 p {
   text-align: center;
+  font-size: 1.2rem;
+  font-style: italic;
+  white-space: nowrap;
   color: var(--grey);
 }
 </style>
