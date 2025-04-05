@@ -14,13 +14,16 @@ const generateText = async (prompt, text, maxTokens = 200) => {
         model: 'llama-3.3-70b-versatile',
         messages: [
           { role: 'system', content: prompt },
-          { role: 'user', content: text }, // Убрали лишнее "Text: "
+          { role: 'user', content: text },
         ],
         max_tokens: maxTokens,
         n: 1,
       });
       const variant = completion.choices[0].message.content.trim();
-      variants.push(variant);
+      // Разделяем ответ на варианты и берём только первый
+      const variantBlocks = variant.split('---').filter((block) => block.trim() !== '');
+      const singleVariant = variantBlocks[0] || variant; // Берём только первый вариант
+      variants.push(singleVariant);
       if (i < 2) await delay(500);
     }
     // Объединяем варианты с разделителем ---

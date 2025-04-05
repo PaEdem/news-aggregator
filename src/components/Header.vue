@@ -2,6 +2,9 @@
 <template>
   <header>
     <div class="header-left">
+      <span>{{ currentDate }}</span>
+    </div>
+    <div class="header-center">
       <Range />
     </div>
     <div class="header-right">
@@ -41,6 +44,11 @@ export default {
   setup() {
     const newsStore = useNewsStore();
     return { newsStore };
+  },
+  data() {
+    return {
+      currentDate: new Date().toLocaleDateString('ru-RU'),
+    };
   },
   methods: {
     async getTitles() {
@@ -184,6 +192,7 @@ export default {
           modifyArticleSsml: this.newsStore.ssmlArticle?.modifyArticleSsml || '',
         };
 
+        // Сохраняем в localStorage для резервного хранения
         const savedArticles = JSON.parse(localStorage.getItem('savedArticles') || '[]');
         savedArticles.push({
           id: this.newsStore.selectedNews.id,
@@ -191,15 +200,17 @@ export default {
         });
         localStorage.setItem('savedArticles', JSON.stringify(savedArticles));
 
-        const blob = new Blob([JSON.stringify(dataToSave, null, 2)], { type: 'text/plain' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `article_${this.newsStore.selectedNews.id}.txt`;
-        link.click();
-        URL.revokeObjectURL(url);
+        // Отправляем запрос на сервер для сохранения файла
+        const response = await axios.post('http://localhost:3000/save', dataToSave);
 
+        // Обновляем статус сохранения в сторе
         this.newsStore.saveNews(this.newsStore.selectedNews.id);
+
+        // Уведомляем пользователя об успешном сохранении
+        alert(`File saved successfully to ${response.data.filePath}`);
+      } catch (error) {
+        console.error('Error saving file:', error.message);
+        alert('Failed to save file. Please try again.');
       } finally {
         this.newsStore.setLoading(false);
       }
@@ -222,6 +233,13 @@ header {
 }
 
 .header-left {
+  display: flex;
+  align-items: center;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.header-center {
   display: flex;
   align-items: center;
 }

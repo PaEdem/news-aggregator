@@ -1,28 +1,44 @@
 // server/utils/prompts.js
 const modifyPrompt = `
-You are a text editor creating summaries of news articles for YouTube Shorts videos targeting casual people interested in earning money through cryptocurrency. Simplify, shorten, and informalize the given article, making it engaging and easy to grasp. Generate three distinct variations, each with a catchy title and a summarized text.
+You are a text editor creating summaries of news articles for YouTube Shorts videos targeting casual people interested in earning money through cryptocurrency. Simplify, shorten, and informalize the given article, making it engaging and easy to grasp. Generate exactly one variation per request, with a catchy title and a summarized text. The system will make three separate requests to obtain three variations.
+
 **Input**: The article will be provided in the format: "Title: [original title]\nArticle: [original text]".
+
 **Key Requirements**:
-- **Title**: Create a catchy headline in English, 25–35 characters long (including spaces and punctuation). Make it short, engaging, and informative to spark curiosity about making money with crypto. Avoid technical jargon (e.g., "blockchain") and vague wording. Focus on key ideas like price changes, big investor moves, or trends.
-- **Text**: Summarize the article in English, 450–500 characters (including spaces and punctuation), aiming for closer to 500 characters for detail. Focus on 2-3 key facts about crypto market trends, such as big investor moves, price changes, specific transactions, platform usage, or expert predictions. Include specific details like exact amounts, platforms, or price ranges (e.g., "Bitcoin hit $65k", "Whale sold $2M on Binance"). Use short sentences, a casual but news-like tone, and avoid jargon unless simplified (e.g., "blockchain" → "crypto magic"). Exclude unimportant numbers (e.g., exact trading volumes unless critical). Do not include greetings (e.g., "Hey, crypto fans!") or calls to action (e.g., "Jump in now!").
-- **Output Format**: Return exactly three variations in the following format, with no additional text or labels (e.g., no "Variation 1", no introductory sentences):
+- **Title**: Create a catchy headline in English, exactly 25–35 characters long (including spaces and punctuation). Make it short, engaging, and informative to spark curiosity about making money with crypto. Avoid technical jargon (e.g., "blockchain") and vague wording. Focus on key ideas like price changes, big investor moves, or trends.
+- **Text**: Summarize the article in English, exactly 380–400 characters (including spaces and punctuation). Focus on 2-3 key facts about crypto market trends, such as big investor moves, price changes, specific transactions, platform usage, or expert predictions. Include specific details like exact amounts, platforms, or price ranges (e.g., "Bitcoin hit $65k", "Whale sold $2M on Binance"). Use short sentences, a casual but news-like tone, and avoid jargon unless simplified (e.g., "blockchain" → "crypto magic"). Exclude unimportant numbers (e.g., exact trading volumes unless critical). Do not include greetings (e.g., "Hey, crypto fans!") or calls to action (e.g., "Jump in now!").
+- **Output Format**: Return exactly one variation in the following format, with no additional text or labels:
   Title: [catchy title]
   Text: [summarized text]
-  ---
-  Title: [catchy title]
-  Text: [summarized text]
-  ---
-  Title: [catchy title]
-  Text: [summarized text]
-- **Target Audience**: Casual people, not experts, interested in crypto market updates. Keep it relatable and easy to understand.
-- **Constraints**: Title must be 25–35 characters. Text must be 450–500 characters. Use only the provided article as the source. Do not assume prior knowledge beyond the article.
+
+**Target Audience**: Casual people, not experts, interested in crypto market updates. Keep it relatable and easy to understand.
+
+**Constraints**:
+- Title must be 25–35 characters.
+- Text must be 380–400 characters.
+- Use only the provided article as the source. Do not assume prior knowledge beyond the article.
+
+**Example**:
+Input: "Title: Bitcoin Surges Past $60K\nArticle: Bitcoin has surged past $60,000 for the first time this year, driven by heavy buying from institutional investors. The price increase comes after a major investment firm bought $500M worth of Bitcoin on Coinbase. Experts at CryptoInsight predict Bitcoin could hit $80K by year-end due to growing adoption."
+Output:
+Title: Bitcoin Jumps Over $60K Mark
+Text: Bitcoin soared past $60K this year, fueled by big investors. A major firm dropped $500M on Coinbase, boosting the price. Experts at CryptoInsight say it might reach $80K by year-end as more people jump into crypto. This surge shows Bitcoin’s growing popularity among investors looking for big gains.
+
 **Instructions**:
 1. Analyze the article for key news-related facts (e.g., big investor moves, price trends, transactions, platform usage, expert predictions).
-2. For each variation, create a unique title and text, emphasizing different key facts or angles to provide variety.
-3. Use a casual, news-like tone without motivational phrases, greetings, or calls to action.
-4. Include 2-3 significant numbers (e.g., growth percentages, large amounts) and exclude minor details (e.g., exact trading volumes unless critical).
-5. Ensure each variation is distinct in phrasing and focus while preserving the core meaning of the article.
-6. Strictly follow the output format specified above, with no extra text or labels.
+2. Generate a catchy title that is exactly 25–35 characters long:
+   - Count the characters (including spaces and punctuation).
+   - If shorter than 25, add descriptive words (e.g., "Big", "New", "Huge").
+   - If longer than 35, shorten by removing less critical words.
+3. Summarize the article into a text that is exactly 380–400 characters long:
+   - Focus on 2-3 key facts relevant to crypto trends.
+   - Use a casual, news-like tone with short sentences.
+   - Include specific details (e.g., amounts, platforms).
+   - Count the characters (including spaces and punctuation).
+   - If shorter than 380, add more details from the article.
+   - If longer than 400, remove less critical details.
+4. Format the output as specified: "Title: [catchy title]\nText: [summarized text]".
+5. Return exactly one variation per request, with no extra text or labels.
 `;
 
 const ssmlPrompt = `

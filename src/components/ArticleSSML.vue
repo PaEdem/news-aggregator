@@ -22,8 +22,8 @@ export default {
 
 <style scoped>
 .article-ssml {
-  background-color: var(--beige);
-  border: 1px solid var(--green);
+  background-color: var(--white);
+  border: 1px solid var(--red);
   border-radius: 4px;
   padding: 8px;
   /* flex: 1; */
@@ -35,7 +35,7 @@ export default {
   margin-bottom: 4px;
 }
 .ssmlArticle {
-  color: var(--black);
+  color: var(--blue);
   font-size: 12px;
 }
 </style>

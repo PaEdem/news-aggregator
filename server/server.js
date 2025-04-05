@@ -2,6 +2,8 @@
 const express = require('express');
 const cors = require('cors');
 const puppeteer = require('puppeteer');
+const fs = require('fs').promises; // Для работы с файловой системой
+const path = require('path'); // Для работы с путями
 const { translateText } = require('./utils/translate');
 const { generateText } = require('./utils/groq');
 const { modifyPrompt, ssmlPrompt } = require('./utils/prompts');
@@ -28,6 +30,18 @@ let browser;
     args: ['--no-sandbox', '--disable-setuid-sandbox'],
   });
 })();
+
+// Функция для получения текущей даты в формате YYYY_MM_DD
+const getCurrentDateFolderName = () => {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0'); // Месяцы начинаются с 0
+  const day = String(now.getDate()).padStart(2, '0');
+  return `${year}_${month}_${day}`; // Например, 2025_04_05
+};
+
+// Базовая папка для сохранения
+const BASE_SAVE_PATH = 'C:\\projects\\news-downloads';
 
 app.get('/scrape', async (req, res) => {
   try {
@@ -73,10 +87,7 @@ app.post('/modify', async (req, res) => {
   }
   try {
     const inputText = `Title: ${title}\nArticle: ${article}`;
-    console.log('Sending request to Groq with input:', inputText);
-    const variantsText = await generateText(modifyPrompt, inputText, 200);
-
-    console.log('Groq response variants:', variantsText);
+    const variantsText = await generateText(modifyPrompt, inputText, 400);
 
     // Разделяем варианты по разделителю ---
     const variantBlocks = variantsText.split('---').filter((block) => block.trim() !== '');
@@ -152,6 +163,42 @@ app.post('/ssml', async (req, res) => {
   } catch (error) {
     console.error('Error generating SSML:', error.message);
     res.status(500).json({ error: 'Failed to generate SSML' });
+  }
+});
+
+app.post('/save', async (req, res) => {
+  const { modifyTitle, modifyArticle, modifyTitleSsml, modifyArticleSsml } = req.body;
+  if (!modifyTitle || !modifyArticle || !modifyTitleSsml || !modifyArticleSsml) {
+    return res.status(400).json({ error: 'Required fields are missing' });
+  }
+
+  try {
+    const dateFolderName = getCurrentDateFolderName();
+    const dateFolderPath = path.join(BASE_SAVE_PATH, dateFolderName);
+    await fs.mkdir(dateFolderPath, { recursive: true });
+
+    const safeFileName =
+      modifyTitle
+        .replace(/[^a-zA-Z0-9\s-]/g, '') // Удаляем недопустимые символы
+        .replace(/\s+/g, '_') // Заменяем пробелы на подчеркивания
+        .trim() + '.txt';
+    const filePath = path.join(dateFolderPath, safeFileName);
+
+    let fileContent = `
+Title: ${modifyTitle}
+Text: ${modifyArticle}
+SSML Title: ${modifyTitleSsml}
+SSML Text: ${modifyArticleSsml}
+      `.trim();
+
+    // Сохраняем файл
+    await fs.writeFile(filePath, fileContent, 'utf8');
+    console.log(`File saved to ${filePath}`);
+
+    res.json({ message: 'File saved successfully', filePath });
+  } catch (error) {
+    console.error('Error saving file:', error.message);
+    res.status(500).json({ error: 'Failed to save file' });
   }
 });
 
