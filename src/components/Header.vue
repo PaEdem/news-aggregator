@@ -80,21 +80,51 @@ export default {
     async modify() {
       this.newsStore.setLoading(true);
       try {
-        await new Promise((resolve) => setTimeout(resolve, 1000)); // Имитация задержки
+        if (
+          !this.newsStore.selectedNews.article ||
+          this.newsStore.selectedNews.article === 'Текст статьи пока не загружается'
+        ) {
+          const response = await axios.get('http://localhost:3000/scrape-article', {
+            params: {
+              siteName: this.newsStore.selectedNews.siteName,
+              link: this.newsStore.selectedNews.link,
+            },
+          });
+          this.newsStore.selectedNews.article = response.data.article;
+          this.newsStore.selectedNews.translatedArticle = response.data.translatedArticle;
+        }
+
+        const modifyResponse = await axios.post('http://localhost:3000/modify', {
+          title: this.newsStore.selectedNews.title,
+          article: this.newsStore.selectedNews.article,
+        });
+
         const modified = {
-          modifyTitle: 'Modified: ' + this.newsStore.selectedNews.title,
-          modifyArticle: 'Modified article text...',
-          modifyTitleRus: 'Перевод: ' + this.newsStore.selectedNews.translation,
-          modifyArticleRus: 'Перевод статьи...',
+          variants: modifyResponse.data.variants.map((variant) => {
+            // Проверяем длину на фронтенде
+            console.log(
+              `Frontend check - Variant: Title length: ${variant.modifyTitle.length}, Text length: ${variant.modifyArticle.length}`
+            );
+            if (variant.modifyTitle.length < 25 || variant.modifyTitle.length > 35) {
+              console.warn(`Title length out of range (25-35): ${variant.modifyTitle}`);
+            }
+            if (variant.modifyArticle.length < 450 || variant.modifyArticle.length > 500) {
+              console.warn(`Text length out of range (450-500): ${variant.modifyArticle}`);
+            }
+            return variant;
+          }),
         };
         this.newsStore.setModifiedArticle(modified);
+        this.newsStore.setSelectedVariant(null);
 
         // Сохранение в LocalStorage после MODIFY
         const articleToSave = {
-          modTitleEn: modified.modifyTitle,
-          modTextEn: modified.modifyArticle,
-          modTitleRu: modified.modifyTitleRus,
-          modTextRu: modified.modifyArticleRus,
+          variants: modified.variants.map((variant) => ({
+            modTitleEn: variant.modifyTitle,
+            modTextEn: variant.modifyArticle,
+            modTitleRu: variant.modifyTitleRus,
+            modTextRu: variant.modifyArticleRus,
+          })),
           ssmlTitle: '',
           ssmlText: '',
         };
@@ -104,6 +134,9 @@ export default {
           { id: this.newsStore.selectedNews.id, ...articleToSave },
         ];
         localStorage.setItem('articles', JSON.stringify(updatedArticles));
+      } catch (error) {
+        console.error('Error modifying article:', error.message);
+        alert('Failed to modify article.');
       } finally {
         this.newsStore.setLoading(false);
       }
@@ -111,14 +144,17 @@ export default {
     async ssml() {
       this.newsStore.setLoading(true);
       try {
-        await new Promise((resolve) => setTimeout(resolve, 1000)); // Имитация задержки
+        const response = await axios.post('http://localhost:3000/ssml', {
+          title: this.newsStore.selectedVariant.modifyTitle,
+          text: this.newsStore.selectedVariant.modifyArticle,
+        });
+
         const ssml = {
-          modifyTitleSsml: '<speak>' + this.newsStore.modifiedArticle.modifyTitle + '</speak>',
-          modifyArticleSsml: '<speak>' + this.newsStore.modifiedArticle.modifyArticle + '</speak>',
+          modifyTitleSsml: response.data.modifyTitleSsml,
+          modifyArticleSsml: response.data.modifyArticleSsml,
         };
         this.newsStore.setSsmlArticle(ssml);
 
-        // Обновление данных в LocalStorage после SSML
         const existingArticles = JSON.parse(localStorage.getItem('articles') || '[]');
         const articleIndex = existingArticles.findIndex((a) => a.id === this.newsStore.selectedNews.id);
         if (articleIndex !== -1) {
@@ -129,6 +165,9 @@ export default {
           };
           localStorage.setItem('articles', JSON.stringify(existingArticles));
         }
+      } catch (error) {
+        console.error('Error generating SSML:', error.message);
+        alert('Failed to generate SSML.');
       } finally {
         this.newsStore.setLoading(false);
       }
@@ -136,19 +175,15 @@ export default {
     async save() {
       this.newsStore.setLoading(true);
       try {
-        await new Promise((resolve) => setTimeout(resolve, 1000)); // Имитация задержки
-
-        // Формируем данные для сохранения
         const dataToSave = {
-          modifyTitle: this.newsStore.modifiedArticle?.modifyTitle || '',
-          modifyArticle: this.newsStore.modifiedArticle?.modifyArticle || '',
-          modifyTitleRus: this.newsStore.modifiedArticle?.modifyTitleRus || '',
-          modifyArticleRus: this.newsStore.modifiedArticle?.modifyArticleRus || '',
+          modifyTitle: this.newsStore.selectedVariant?.modifyTitle || '',
+          modifyArticle: this.newsStore.selectedVariant?.modifyArticle || '',
+          modifyTitleRus: this.newsStore.selectedVariant?.modifyTitleRus || '',
+          modifyArticleRus: this.newsStore.selectedVariant?.modifyArticleRus || '',
           modifyTitleSsml: this.newsStore.ssmlArticle?.modifyTitleSsml || '',
           modifyArticleSsml: this.newsStore.ssmlArticle?.modifyArticleSsml || '',
         };
 
-        // Сохранение в LocalStorage
         const savedArticles = JSON.parse(localStorage.getItem('savedArticles') || '[]');
         savedArticles.push({
           id: this.newsStore.selectedNews.id,
@@ -156,7 +191,6 @@ export default {
         });
         localStorage.setItem('savedArticles', JSON.stringify(savedArticles));
 
-        // Сохранение в текстовый файл
         const blob = new Blob([JSON.stringify(dataToSave, null, 2)], { type: 'text/plain' });
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
@@ -165,7 +199,6 @@ export default {
         link.click();
         URL.revokeObjectURL(url);
 
-        // Обновляем состояние карточки
         this.newsStore.saveNews(this.newsStore.selectedNews.id);
       } finally {
         this.newsStore.setLoading(false);

@@ -5,7 +5,8 @@ export const useNewsStore = defineStore('news', {
   state: () => ({
     newsList: [],
     selectedNews: null,
-    modifiedArticle: null,
+    modifiedArticle: null, // Теперь будет { variants: [{ modifyTitle, modifyArticle, modifyTitleRus, modifyArticleRus }, ...] }
+    selectedVariant: null, // Храним выбранный вариант
     ssmlArticle: null,
     isLoading: false,
     articleCount: 1,
@@ -19,6 +20,7 @@ export const useNewsStore = defineStore('news', {
       };
       this.modifiedArticle = null;
       this.ssmlArticle = null;
+      this.selectedVariant = null;
     },
     saveNews(id) {
       const news = this.newsList.find((item) => item.id === id);
@@ -31,6 +33,9 @@ export const useNewsStore = defineStore('news', {
     },
     setModifiedArticle(modified) {
       this.modifiedArticle = modified;
+    },
+    setSelectedVariant(variant) {
+      this.selectedVariant = variant;
     },
     setSsmlArticle(ssml) {
       this.ssmlArticle = ssml;

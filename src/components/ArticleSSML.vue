@@ -2,8 +2,8 @@
 <template>
   <div class="article-ssml">
     <div>
-      <p class="ssmlTitle">{{ newsStore.ssmlArticle.modifyTitleSsml }}</p>
-      <p class="ssmlArticle">{{ newsStore.ssmlArticle.modifyArticleSsml }}</p>
+      <p class="ssmlTitle">{{ newsStore.ssmlArticle?.modifyTitleSsml || 'Нет данных' }}</p>
+      <p class="ssmlArticle">{{ newsStore.ssmlArticle?.modifyArticleSsml || 'Нет данных' }}</p>
     </div>
   </div>
 </template>
@@ -25,16 +25,17 @@ export default {
   background-color: var(--beige);
   border: 1px solid var(--green);
   border-radius: 4px;
-  padding: 16px 10px;
+  padding: 8px;
   /* flex: 1; */
 }
 .ssmlTitle {
   color: var(--blue);
-  font-size: 16px;
+  font-size: 12px;
   font-weight: bold;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
 }
 .ssmlArticle {
   color: var(--black);
+  font-size: 12px;
 }
 </style>
