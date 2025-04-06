@@ -22,11 +22,10 @@ export default {
 
 <style scoped>
 .article-ssml {
-  background-color: var(--white);
+  background-color: var(--mint);
   border: 1px solid var(--red);
   border-radius: 4px;
   padding: 8px;
-  /* flex: 1; */
 }
 .ssmlTitle {
   color: var(--blue);

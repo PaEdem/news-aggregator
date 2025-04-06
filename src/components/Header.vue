@@ -207,10 +207,12 @@ export default {
         this.newsStore.saveNews(this.newsStore.selectedNews.id);
 
         // Уведомляем пользователя об успешном сохранении
-        alert(`File saved successfully to ${response.data.filePath}`);
+        // alert(`File saved successfully to ${response.data.filePath}`);
+        this.$toast.success(`File saved successfully to ${response.data.filePath}!`);
       } catch (error) {
         console.error('Error saving file:', error.message);
-        alert('Failed to save file. Please try again.');
+        // alert('Failed to save file. Please try again.');
+        this.$toast.error('Failed to save file. Please try again.');
       } finally {
         this.newsStore.setLoading(false);
       }
@@ -226,10 +228,15 @@ header {
   box-shadow: 0 2px 4px var(--black);
   padding: 10px;
   height: 80px;
+  width: 100%;
   display: flex;
   justify-content: space-around;
   align-items: center;
   gap: 10px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 500;
 }
 
 .header-left {

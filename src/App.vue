@@ -46,11 +46,13 @@ export default {
   height: 100vh;
   display: flex;
   flex-direction: column;
+  position: relative;
 }
 
 .main-layout {
   display: grid;
   grid-template-columns: 1fr 1fr;
   height: calc(100vh - 80px);
+  margin-top: 82px;
 }
 </style>

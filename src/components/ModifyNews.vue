@@ -46,7 +46,7 @@ export default {
 }
 .selected {
   border-color: var(--red);
-  background-color: var(--white);
+  background-color: var(--mint);
 }
 .engTitle {
   font-size: 12px;
